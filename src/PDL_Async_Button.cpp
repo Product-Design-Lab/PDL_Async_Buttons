@@ -3,7 +3,16 @@
 PDL_Async_Button *PDL_Async_Button::instances[MAX_PIN_NUM] = {nullptr};
 uint8_t PDL_Async_Button::instance_count = 0;
 
-PDL_Async_Button::PDL_Async_Button()
+PDL_Async_Button::PDL_Async_Button() : shortPressCallback(nullptr),
+                                       longPressCallback(nullptr),
+                                       pin(0),
+                                       debounceTime(50),
+                                       longPressTime(1000),
+                                       idle_logic_level(LOW),
+                                       short_press_count(0),
+                                       long_press_count(0),
+                                       state(PDL_Async_Button::BUTTON_IDLE),
+                                       output_state(PDL_Async_Button::BUTTON_IDLE)
 {
     if (instance_count >= MAX_PIN_NUM)
     {
@@ -11,16 +20,20 @@ PDL_Async_Button::PDL_Async_Button()
     }
     idx = instance_count++;
     instances[idx] = this;
-
-    pin = 0;
-    debounceTime = 50;
-    longPressTime = 1000;
-    idle_logic_level = LOW;
-    short_press_count = 0;
-    long_press_count = 0;
-    state = BUTTON_IDLE;
-    output_state = BUTTON_IDLE;
-    timerHandle = xTimerCreate("ButtonTimer", pdMS_TO_TICKS(debounceTime), pdFALSE, (void *)(intptr_t)idx, idx == 0 ? timerCallbackInstance1 : timerCallbackInstance2);
+    TimerCallbackFunction_t cbs;
+    switch (idx)
+    {
+    case 0:
+        cbs = timerCallbackInstance1;
+        break;
+    case 1:
+        cbs = timerCallbackInstance2;
+        break;
+    default:
+        cbs = nullptr;
+        break;
+    }
+    timerHandle = xTimerCreate("ButtonTimer", pdMS_TO_TICKS(debounceTime), pdFALSE, (void *)(intptr_t)idx, cbs);
 }
 
 void PDL_Async_Button::setPin(uint8_t pin, bool idle_logic_level)
@@ -65,6 +78,22 @@ uint8_t PDL_Async_Button::getState()
 void PDL_Async_Button::init()
 {
     setInitialState();
+}
+
+void PDL_Async_Button::deinit()
+{
+    detachInterrupt(pin);
+    xTimerDelete(timerHandle, portMAX_DELAY);
+}
+
+void PDL_Async_Button::disable()
+{
+    deinit();
+}
+
+void PDL_Async_Button::enable()
+{
+    init();
 }
 
 void PDL_Async_Button::gpioCallback()

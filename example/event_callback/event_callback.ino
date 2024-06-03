@@ -2,6 +2,8 @@
 #include <PDL_Async_Button.h>
 #include <Adafruit_TinyUSB.h>
 
+#define PIN_NUM 0
+
 // Create an instance of PDL_Async_Button
 PDL_Async_Button button;
 
@@ -21,7 +23,7 @@ void setup() {
     while (!Serial);
 
     // Configure the button
-    button.setPin(0, HIGH);
+    button.setPin(PIN_NUM, HIGH);
     button.setDebounceTime(50);
     button.setLongPressTime(1000);
     button.setShortPressCallback(onShortPress);
@@ -33,6 +35,24 @@ void setup() {
 
 void loop() {
     // The button press events are handled by the callbacks, nothing to do here
-    delay(1000);
-    Serial.println(".");
+    delay(200);
+    if(Serial.available())
+    {
+      char c = Serial.read();
+      if(c == 'd')
+      {
+        button.disable();
+        Serial.println("Button disabled.");
+      }
+      else if(c == 'e')
+      {
+        button.enable();
+        Serial.println("Button enabled.");
+      }
+
+      while(Serial.available())
+      {
+        Serial.read();
+      }
+    }
 }

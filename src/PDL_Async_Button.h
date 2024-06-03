@@ -9,7 +9,7 @@
 class PDL_Async_Button
 {
 public:
-    using ButtonCallback = void (*)();  // Define a function pointer type for callbacks
+    
 
     enum ButtonState
     {
@@ -35,6 +35,7 @@ private:
     uint8_t output_state;
 
     TimerHandle_t timerHandle;
+    using ButtonCallback = void (*)(); // Define a function pointer type for callbacks
     ButtonCallback shortPressCallback; // Callback for short press
     ButtonCallback longPressCallback;  // Callback for long press
 
@@ -60,6 +61,9 @@ public:
     uint8_t getState(int *short_press_count, int *long_press_count);
     uint8_t getState();
     void init();
+    void deinit();
+    void disable();
+    void enable();
 
     void setShortPressCallback(ButtonCallback callback); // Set short press callback
     void setLongPressCallback(ButtonCallback callback);  // Set long press callback
