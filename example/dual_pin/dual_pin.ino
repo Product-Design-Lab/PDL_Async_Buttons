@@ -3,25 +3,9 @@
 #include <Adafruit_TinyUSB.h>
 
 // Create instances of PDL_Async_Button
-PDL_Async_Button button1;
-PDL_Async_Button button2;
+PDL_Async_Button button1(0, HIGH);
+PDL_Async_Button button2(1, HIGH);
 
-// Variables to keep track of the previous states
-uint8_t previousState1 = PDL_Async_Button::BUTTON_IDLE;
-int previousShortPressCount1 = 0;
-int previousLongPressCount1 = 0;
-
-uint8_t previousState2 = PDL_Async_Button::BUTTON_IDLE;
-int previousShortPressCount2 = 0;
-int previousLongPressCount2 = 0;
-
-void initializeButton(PDL_Async_Button &button, uint8_t pin, uint32_t debounceTime, uint32_t longPressTime)
-{
-    button.setPin(pin, HIGH);
-    button.setDebounceTime(debounceTime);
-    button.setLongPressTime(longPressTime);
-    button.init();
-}
 
 void setup()
 {
@@ -30,53 +14,75 @@ void setup()
     while (!Serial)
         ;
 
-    // Initialize buttons
-    initializeButton(button1, 0, 50, 1000);
-    initializeButton(button2, 1, 50, 1000);
+    // Configure the buttons
+    button1.setDebounceTime(50);
+    button1.setLongPressTime(1000);
+    button1.init();
+
+    button2.setDebounceTime(50);
+    button2.setLongPressTime(1000);
+    button2.init();
 
     Serial.println("Buttons initialized.");
+
 }
 
-void printState(PDL_Async_Button &button, uint8_t &previousState, int &previousShortPressCount, int &previousLongPressCount)
-{
-    int short_press_count;
-    int long_press_count;
-    uint8_t state = button.getState(&short_press_count, &long_press_count);
 
-    // Print state and counts only if they change
-    if (state != previousState || short_press_count != previousShortPressCount || long_press_count != previousLongPressCount)
-    {
-        switch (state)
-        {
-        case PDL_Async_Button::BUTTON_IDLE:
-            Serial.print("State: IDLE");
-            break;
-        case PDL_Async_Button::BUTTON_DEBOUNCE:
-            Serial.print("State: DEBOUNCE");
-            break;
-        case PDL_Async_Button::BUTTON_SHORT_PRESS:
-            Serial.print("State: SHORT PRESS");
-            break;
-        case PDL_Async_Button::BUTTON_LONG_PRESS:
-            Serial.print("State: LONG PRESS");
-            break;
-        default:
-            Serial.print("State: UNKNOWN");
-            break;
-        }
-
-        Serial.printf(", Short: %d, Long: %d\n", short_press_count, long_press_count);
-
-        // Update the previous state and counts
-        previousState = state;
-        previousShortPressCount = short_press_count;
-        previousLongPressCount = long_press_count;
-    }
-}
 
 void loop()
 {
-    printState(button1, previousState1, previousShortPressCount1, previousLongPressCount1);
-    printState(button2, previousState2, previousShortPressCount2, previousLongPressCount2);
-    delay(100);
+    int short_press_count1;
+    int long_press_count1;
+    uint8_t state1 = button1.getState(&short_press_count1, &long_press_count1);
+
+    int short_press_count2;
+    int long_press_count2;
+    uint8_t state2 = button2.getState(&short_press_count2, &long_press_count2);
+
+    // Print state and counts only if they change
+    if (state1 != PDL_Async_Button::BUTTON_IDLE || state2 != PDL_Async_Button::BUTTON_IDLE)
+    {
+        switch (state1)
+        {
+        case PDL_Async_Button::BUTTON_IDLE:
+            Serial.print("State1: IDLE");
+            break;
+        case PDL_Async_Button::BUTTON_DEBOUNCE:
+            Serial.print("State1: DEBOUNCE");
+            break;
+        case PDL_Async_Button::BUTTON_SHORT_PRESS:
+            Serial.print("State1: SHORT PRESS");
+            break;
+        case PDL_Async_Button::BUTTON_LONG_PRESS:
+            Serial.print("State1: LONG PRESS");
+            break;
+        default:
+            Serial.print("State1: UNKNOWN");
+            break;
+        }
+
+        Serial.printf(", Short1: %d, Long1: %d\n", short_press_count1, long_press_count1);
+
+        switch (state2)
+        {
+        case PDL_Async_Button::BUTTON_IDLE:
+            Serial.print("State2: IDLE");
+            break;
+        case PDL_Async_Button::BUTTON_DEBOUNCE:
+            Serial.print("State2: DEBOUNCE");
+            break;
+        case PDL_Async_Button::BUTTON_SHORT_PRESS:
+            Serial.print("State2: SHORT PRESS");
+            break;
+        case PDL_Async_Button::BUTTON_LONG_PRESS:
+            Serial.print("State2: LONG PRESS");
+            break;
+        default:
+            Serial.print("State2: UNKNOWN");
+            break;
+        }
+
+        Serial.printf(", Short2: %d, Long2: %d\n", short_press_count2, long_press_count2);
+    }
+
 }

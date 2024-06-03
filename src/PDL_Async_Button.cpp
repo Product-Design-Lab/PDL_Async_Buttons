@@ -3,16 +3,16 @@
 PDL_Async_Button *PDL_Async_Button::instances[MAX_PIN_NUM] = {nullptr};
 uint8_t PDL_Async_Button::instance_count = 0;
 
-PDL_Async_Button::PDL_Async_Button() : shortPressCallback(nullptr),
-                                       longPressCallback(nullptr),
-                                       pin(0),
-                                       debounceTime(50),
-                                       longPressTime(1000),
-                                       idle_logic_level(LOW),
-                                       short_press_count(0),
-                                       long_press_count(0),
-                                       state(PDL_Async_Button::BUTTON_IDLE),
-                                       output_state(PDL_Async_Button::BUTTON_IDLE)
+PDL_Async_Button::PDL_Async_Button(uint8_t pin, bool idle_logic_level) : shortPressCallback(nullptr),
+                                                                         longPressCallback(nullptr),
+                                                                         pin(pin),
+                                                                         debounceTime(50),
+                                                                         longPressTime(1000),
+                                                                         idle_logic_level(idle_logic_level),
+                                                                         short_press_count(0),
+                                                                         long_press_count(0),
+                                                                         state(PDL_Async_Button::BUTTON_IDLE),
+                                                                         output_state(PDL_Async_Button::BUTTON_IDLE)
 {
     if (instance_count >= MAX_PIN_NUM)
     {
@@ -34,13 +34,13 @@ PDL_Async_Button::PDL_Async_Button() : shortPressCallback(nullptr),
         break;
     }
     timerHandle = xTimerCreate("ButtonTimer", pdMS_TO_TICKS(debounceTime), pdFALSE, (void *)(intptr_t)idx, cbs);
+
+    pinMode(pin, idle_logic_level == HIGH ? INPUT_PULLUP : INPUT_PULLDOWN);
 }
 
-void PDL_Async_Button::setPin(uint8_t pin, bool idle_logic_level)
+PDL_Async_Button::~PDL_Async_Button()
 {
-    this->pin = pin;
-    this->idle_logic_level = idle_logic_level;
-    pinMode(pin, idle_logic_level == HIGH ? INPUT_PULLUP : INPUT_PULLDOWN);
+    deinit();
 }
 
 void PDL_Async_Button::setDebounceTime(uint32_t ms)
@@ -51,12 +51,6 @@ void PDL_Async_Button::setDebounceTime(uint32_t ms)
 void PDL_Async_Button::setLongPressTime(uint32_t ms)
 {
     longPressTime = ms;
-}
-
-void PDL_Async_Button::setIdleLogicLevel(bool logic_level)
-{
-    idle_logic_level = logic_level;
-    pinMode(pin, logic_level == HIGH ? INPUT_PULLUP : INPUT_PULLDOWN);
 }
 
 uint8_t PDL_Async_Button::getState(int *short_press_count, int *long_press_count)

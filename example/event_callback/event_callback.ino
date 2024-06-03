@@ -5,7 +5,7 @@
 #define PIN_NUM 0
 
 // Create an instance of PDL_Async_Button
-PDL_Async_Button button;
+PDL_Async_Button button(PIN_NUM, HIGH);
 
 // Callback function for short press
 void onShortPress() {
@@ -23,7 +23,6 @@ void setup() {
     while (!Serial);
 
     // Configure the button
-    button.setPin(PIN_NUM, HIGH);
     button.setDebounceTime(50);
     button.setLongPressTime(1000);
     button.setShortPressCallback(onShortPress);

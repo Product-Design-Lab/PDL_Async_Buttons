@@ -25,10 +25,10 @@ private:
     static uint8_t instance_count;
 
     uint8_t idx;
-    uint8_t pin;
+    const uint8_t pin;
+    const bool idle_logic_level;
     uint32_t debounceTime;
     uint32_t longPressTime;
-    bool idle_logic_level;
     int short_press_count;
     int long_press_count;
     uint8_t state;
@@ -53,11 +53,11 @@ private:
     void setLongPressState();
 
 public:
-    PDL_Async_Button();
-    void setPin(uint8_t pin, bool idle_logic_level = HIGH);
+    PDL_Async_Button(uint8_t pin, bool idle_logic_level = HIGH);
+    ~PDL_Async_Button();
+
     void setDebounceTime(uint32_t ms);
     void setLongPressTime(uint32_t ms);
-    void setIdleLogicLevel(bool logic_level);
     uint8_t getState(int *short_press_count, int *long_press_count);
     uint8_t getState();
     void init();

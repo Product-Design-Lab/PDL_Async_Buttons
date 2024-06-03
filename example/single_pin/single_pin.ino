@@ -3,7 +3,7 @@
 #include <Adafruit_TinyUSB.h>
 
 // Create an instance of PDL_Async_Button
-PDL_Async_Button button;
+PDL_Async_Button button(0, HIGH);
 
 // Variables to keep track of the previous state
 uint8_t previousState = PDL_Async_Button::BUTTON_IDLE;
@@ -18,7 +18,6 @@ void setup()
         ;
 
     // Configure the button
-    button.setPin(0, HIGH);
     button.setDebounceTime(50);
     button.setLongPressTime(1000);
     button.init();
