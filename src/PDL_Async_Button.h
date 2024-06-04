@@ -33,6 +33,7 @@ private:
     int long_press_count;
     uint8_t state;
     uint8_t output_state;
+    bool initialized;
 
     TimerHandle_t timerHandle;
     using ButtonCallback = void (*)(); // Define a function pointer type for callbacks

@@ -12,7 +12,8 @@ PDL_Async_Button::PDL_Async_Button(uint8_t pin, bool idle_logic_level) : shortPr
                                                                          short_press_count(0),
                                                                          long_press_count(0),
                                                                          state(PDL_Async_Button::BUTTON_IDLE),
-                                                                         output_state(PDL_Async_Button::BUTTON_IDLE)
+                                                                         output_state(PDL_Async_Button::BUTTON_IDLE),
+                                                                         initialized(false)
 {
     if (instance_count >= MAX_PIN_NUM)
     {
@@ -71,11 +72,22 @@ uint8_t PDL_Async_Button::getState()
 
 void PDL_Async_Button::init()
 {
+
+    if (initialized)
+    {
+        return;
+    }
+    initialized = true;
     setInitialState();
 }
 
 void PDL_Async_Button::deinit()
 {
+    if (!initialized)
+    {
+        return;
+    }
+    initialized = false;
     detachInterrupt(pin);
     xTimerDelete(timerHandle, portMAX_DELAY);
 }
